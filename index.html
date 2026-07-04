@@ -240,6 +240,10 @@
       background: rgba(255, 255, 255, 0.72);
     }
 
+    .category-adder {
+      grid-template-columns: 1fr auto;
+    }
+
     .add-panel {
       margin: 0 0 24px;
     }
@@ -423,6 +427,80 @@
     .items {
       display: grid;
       gap: 9px;
+    }
+
+    .category-add-panel {
+      margin-top: 10px;
+    }
+
+    .category-add-panel summary {
+      list-style: none;
+    }
+
+    .category-add-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .category-add-toggle {
+      min-height: 38px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px dashed rgba(31, 111, 91, 0.28);
+      border-radius: 8px;
+      background: rgba(248, 244, 236, 0.62);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .category-add-toggle::before {
+      content: "+";
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--blue);
+      color: #fff;
+      line-height: 1;
+    }
+
+    .category-item-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .category-item-form input {
+      min-height: 42px;
+      width: 100%;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      font-weight: 800;
+    }
+
+    .category-item-form input:focus {
+      border-color: rgba(31, 111, 91, 0.52);
+      box-shadow: 0 0 0 4px rgba(31, 111, 91, 0.12);
+    }
+
+    .category-item-form button {
+      min-height: 42px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 900;
+      white-space: nowrap;
     }
 
     .category-empty {
@@ -929,6 +1007,15 @@
         font-size: 14px;
       }
 
+      .category-adder,
+      .category-item-form {
+        grid-template-columns: 1fr;
+      }
+
+      .category-item-form button {
+        width: 100%;
+      }
+
       .action-btn,
       .add-btn {
         width: 100%;
@@ -1116,10 +1203,9 @@
     </section>
 
     <details class="add-panel">
-      <summary class="add-toggle">항목 추가</summary>
-      <form class="adder" id="addForm">
-        <select id="categorySelect" aria-label="추가할 카테고리"></select>
-        <input id="newItemInput" type="text" autocomplete="off" placeholder="추가할 준비물 입력">
+      <summary class="add-toggle">대분류 추가</summary>
+      <form class="adder category-adder" id="categoryAddForm">
+        <input id="categoryNameInput" type="text" autocomplete="off" placeholder="예: 여벌 옷, 간식, 개인 준비물">
         <button class="add-btn" type="submit">추가</button>
       </form>
     </details>
@@ -1157,6 +1243,7 @@
   <script>
     const STORAGE_KEY = "summer-retreat-service-checklist-v1";
     const CUSTOM_KEY = "summer-retreat-service-custom-items-v1";
+    const CUSTOM_CATEGORY_KEY = "summer-retreat-service-custom-categories-v1";
     const DELETED_KEY = "summer-retreat-service-deleted-items-v1";
     const CATEGORY_KEY = "summer-retreat-service-category-edits-v1";
     const ITEM_KEY = "summer-retreat-service-item-edits-v1";
@@ -1251,6 +1338,7 @@
 
     let checkedItems = loadSet(STORAGE_KEY);
     let customItems = loadCustomItems();
+    let customCategories = loadCustomCategories();
     let deletedItems = loadSet(DELETED_KEY);
     let categoryEdits = loadObject(CATEGORY_KEY);
     let itemEdits = loadObject(ITEM_KEY);
@@ -1262,9 +1350,8 @@
     const progressFill = document.getElementById("progressFill");
     const resetBtn = document.getElementById("resetBtn");
     const emptyState = document.getElementById("emptyState");
-    const addForm = document.getElementById("addForm");
-    const categorySelect = document.getElementById("categorySelect");
-    const newItemInput = document.getElementById("newItemInput");
+    const categoryAddForm = document.getElementById("categoryAddForm");
+    const categoryNameInput = document.getElementById("categoryNameInput");
     const editDialog = document.getElementById("editDialog");
     const editForm = document.getElementById("editForm");
     const editEyebrow = document.getElementById("editEyebrow");
@@ -1294,6 +1381,14 @@
       }
     }
 
+    function loadCustomCategories() {
+      try {
+        return JSON.parse(localStorage.getItem(CUSTOM_CATEGORY_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
     function loadObject(key) {
       try {
         return JSON.parse(localStorage.getItem(key) || "{}");
@@ -1310,6 +1405,10 @@
       localStorage.setItem(CUSTOM_KEY, JSON.stringify(customItems));
     }
 
+    function saveCustomCategories() {
+      localStorage.setItem(CUSTOM_CATEGORY_KEY, JSON.stringify(customCategories));
+    }
+
     function saveDeletedItems() {
       localStorage.setItem(DELETED_KEY, JSON.stringify([...deletedItems]));
     }
@@ -1323,10 +1422,11 @@
     }
 
     function activeCategories() {
-      return categories
+      return [...categories, ...customCategories]
         .filter((category) => !categoryEdits[category.id]?.deleted)
-        .map((category) => ({
+        .map((category, index) => ({
           ...category,
+          mark: category.mark || String(index + 1).padStart(2, "0"),
           title: categoryEdits[category.id]?.title || category.title
         }));
     }
@@ -1343,7 +1443,7 @@
     function allCategories() {
       const clone = activeCategories().map((category) => ({
         ...category,
-        items: category.items
+        items: (category.items || [])
           .filter((item) => !deletedItems.has(item.id))
           .map(applyItemEdit)
       }));
@@ -1366,17 +1466,12 @@
       })));
     }
 
-    function renderCategoryOptions() {
-      categorySelect.innerHTML = activeCategories().map((category) => (
-        `<option value="${category.id}">${category.title}</option>`
-      )).join("");
-    }
-
     function render() {
       const categoryList = allCategories();
 
       board.innerHTML = categoryList.map((category) => {
         const checkedCount = category.items.filter((item) => checkedItems.has(item.id)).length;
+        const categoryTitle = escapeHtml(category.title);
         const itemButtons = category.items.map((item) => {
           const isChecked = checkedItems.has(item.id);
           const hidden = currentFilter === "done" && !isChecked || currentFilter === "todo" && isChecked;
@@ -1425,7 +1520,7 @@
             <div class="category-head">
               <h2 class="category-title">
                 <span class="category-mark">${category.mark}</span>
-                <span>${escapeHtml(category.title)}</span>
+                <span>${categoryTitle}</span>
               </h2>
               <div class="category-tools">
                 <span class="category-count">${checkedCount}/${category.items.length}</span>
@@ -1434,6 +1529,13 @@
               </div>
             </div>
             <div class="items">${itemButtons}${emptyItems}</div>
+            <details class="category-add-panel">
+              <summary class="category-add-toggle">${categoryTitle}에 항목 추가</summary>
+              <form class="category-item-form" data-category-id="${category.id}">
+                <input class="category-item-input" type="text" autocomplete="off" placeholder="추가할 준비물 입력" aria-label="${categoryTitle}에 준비물 추가">
+                <button type="submit">추가</button>
+              </form>
+            </details>
           </article>
         `;
       }).join("");
@@ -1454,7 +1556,8 @@
 
     function updateEmptyState() {
       const visibleItems = board.querySelectorAll(".item:not(.is-hidden)").length;
-      emptyState.classList.toggle("is-visible", visibleItems === 0);
+      const visibleCategories = board.querySelectorAll(".category").length;
+      emptyState.classList.toggle("is-visible", visibleItems === 0 && visibleCategories === 0);
     }
 
     function toggleItem(button) {
@@ -1606,7 +1709,6 @@
           deleted: false
         };
         saveCategoryEdits();
-        renderCategoryOptions();
         render();
         closeEditor();
         return;
@@ -1629,7 +1731,6 @@
         saveChecked();
         saveDeletedItems();
         saveCategoryEdits();
-        renderCategoryOptions();
         render();
         closeEditor();
         return;
@@ -1676,27 +1777,55 @@
       render();
     }
 
-    function addCustomItem(event) {
+    function addCategory(event) {
       event.preventDefault();
 
-      const value = newItemInput.value.trim();
-      if (!value) {
-        newItemInput.focus();
+      const title = categoryNameInput.value.trim();
+      if (!title) {
+        categoryNameInput.focus();
         return;
       }
 
-      const categoryId = categorySelect.value;
+      const id = `category-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const mark = String(categories.length + customCategories.length + 1).padStart(2, "0");
+
+      customCategories.push({ id, title, mark, items: [] });
+      saveCustomCategories();
+      categoryNameInput.value = "";
+      render();
+
+      const addedCategory = board.querySelector(`[data-category="${CSS.escape(id)}"]`);
+      if (addedCategory) {
+        addedCategory.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    function addCategoryItem(event) {
+      event.preventDefault();
+
+      const form = event.target.closest(".category-item-form");
+      if (!form) return;
+
+      const input = form.querySelector(".category-item-input");
+      const value = input.value.trim();
+      if (!value) {
+        input.focus();
+        return;
+      }
+
+      const categoryId = form.dataset.categoryId;
       const id = `custom-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
       customItems.push({ id, categoryId, name: value });
       saveCustomItems();
-      newItemInput.value = "";
+      input.value = "";
       render();
 
       const added = board.querySelector(`[data-id="${CSS.escape(id)}"]`);
       if (added) {
         added.scrollIntoView({ behavior: "smooth", block: "center" });
-        added.focus({ preventScroll: true });
+        const addedButton = added.querySelector(".item-main");
+        if (addedButton) addedButton.focus({ preventScroll: true });
       }
     }
 
@@ -1744,12 +1873,18 @@
       if (button) toggleItem(button);
     });
 
+    board.addEventListener("submit", (event) => {
+      if (event.target.matches(".category-item-form")) {
+        addCategoryItem(event);
+      }
+    });
+
     document.querySelectorAll(".filter-btn").forEach((button) => {
       button.addEventListener("click", () => setFilter(button.dataset.filter));
     });
 
     resetBtn.addEventListener("click", resetChecks);
-    addForm.addEventListener("submit", addCustomItem);
+    categoryAddForm.addEventListener("submit", addCategory);
     editForm.addEventListener("submit", saveEditor);
     editCancelBtn.addEventListener("click", closeEditor);
     editDialog.addEventListener("click", (event) => {
@@ -1760,7 +1895,6 @@
       if (event.key === "Escape" && !editDialog.hidden) closeEditor();
     });
 
-    renderCategoryOptions();
     render();
 
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
