@@ -1,0 +1,25 @@
+{
+  "name": "하계수양회 준비물 체크리스트",
+  "short_name": "하계 준비물",
+  "description": "하계수양회 준비물을 모바일에서 빠르게 체크하는 설치형 체크리스트입니다.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffaf2",
+  "theme_color": "#2f6df6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
