@@ -14,18 +14,18 @@
   <style>
     :root {
       color-scheme: light;
-      --ink: #171717;
-      --muted: #666f7a;
-      --line: #dfe4ea;
-      --paper: #fffaf2;
+      --ink: #151515;
+      --muted: #6e6a60;
+      --line: #e5ded2;
+      --paper: #f4efe6;
       --surface: #ffffff;
-      --surface-strong: #f5f7fb;
-      --blue: #2f6df6;
-      --mint: #19a974;
-      --yellow: #ffd34d;
-      --coral: #ff6b57;
-      --violet: #7a5cff;
-      --shadow: 0 14px 36px rgba(22, 28, 45, 0.12);
+      --surface-strong: #f8f4ec;
+      --blue: #1f6f5b;
+      --mint: #2f8f72;
+      --yellow: #c6a15b;
+      --coral: #b85c4a;
+      --violet: #384150;
+      --shadow: 0 16px 40px rgba(38, 34, 28, 0.12);
       --fast: 160ms ease;
     }
 
@@ -36,8 +36,8 @@
     html {
       min-height: 100%;
       background:
-        linear-gradient(120deg, rgba(47, 109, 246, 0.12), transparent 34%),
-        linear-gradient(240deg, rgba(25, 169, 116, 0.12), transparent 40%),
+        linear-gradient(120deg, rgba(31, 111, 91, 0.10), transparent 34%),
+        linear-gradient(240deg, rgba(198, 161, 91, 0.13), transparent 40%),
         var(--paper);
       overflow-x: hidden;
     }
@@ -82,17 +82,16 @@
       gap: 8px;
       margin: 0 0 10px;
       color: var(--blue);
-      font-size: 14px;
-      font-weight: 800;
+      font-size: 13px;
+      font-weight: 850;
     }
 
     .kicker::before {
       content: "";
-      width: 10px;
-      height: 10px;
+      width: 18px;
+      height: 2px;
       border-radius: 999px;
-      background: var(--coral);
-      box-shadow: 14px 0 0 var(--yellow), 28px 0 0 var(--mint);
+      background: var(--yellow);
     }
 
     h1 {
@@ -101,6 +100,8 @@
       font-size: clamp(34px, 6vw, 64px);
       line-height: 0.95;
       letter-spacing: 0;
+      word-break: keep-all;
+      text-wrap: balance;
     }
 
     .title-line {
@@ -120,7 +121,7 @@
       padding: 18px;
       border: 1px solid rgba(23, 23, 23, 0.08);
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.9);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
     }
@@ -158,7 +159,7 @@
       width: 0%;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, var(--mint), var(--blue), var(--violet));
+      background: linear-gradient(90deg, var(--yellow), var(--mint), var(--blue));
       transition: width 280ms ease;
     }
 
@@ -389,9 +390,50 @@
       white-space: nowrap;
     }
 
+    .category-tools {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .category-action {
+      min-height: 30px;
+      padding: 0 9px;
+      border: 1px solid rgba(23, 23, 23, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      transition: transform var(--fast), color var(--fast), border-color var(--fast), background var(--fast);
+    }
+
+    .category-action:hover {
+      transform: translateY(-1px);
+      border-color: rgba(31, 111, 91, 0.28);
+      color: var(--blue);
+    }
+
+    .category-delete-btn:hover {
+      border-color: rgba(184, 92, 74, 0.32);
+      color: var(--coral);
+    }
+
     .items {
       display: grid;
       gap: 9px;
+    }
+
+    .category-empty {
+      margin: 4px 0 0;
+      padding: 14px 10px;
+      border: 1px dashed rgba(23, 23, 23, 0.12);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+      text-align: center;
     }
 
     .item {
@@ -413,7 +455,7 @@
       grid-template-columns: 34px minmax(0, 1fr) auto;
       gap: 11px;
       align-items: center;
-      padding: 10px 52px 10px 10px;
+      padding: 10px 86px 10px 10px;
       border: 0;
       border-radius: 8px;
       background: transparent;
@@ -433,6 +475,8 @@
     }
 
     .item-main:focus-visible,
+    .edit-btn:focus-visible,
+    .category-action:focus-visible,
     .delete-btn:focus-visible {
       outline: 3px solid rgba(47, 109, 246, 0.32);
       outline-offset: 2px;
@@ -518,38 +562,61 @@
       transform: scale(1.04);
     }
 
-    .delete-btn {
+    .item-actions {
       position: absolute;
       top: 50%;
       right: 10px;
-      width: 34px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-50%) scale(0.94);
+      transition: opacity var(--fast), transform var(--fast);
+    }
+
+    .edit-btn,
+    .delete-btn {
+      width: 36px;
       height: 34px;
       display: grid;
       place-items: center;
-      border: 1px solid rgba(255, 107, 87, 0.34);
+      border: 1px solid rgba(23, 23, 23, 0.08);
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.96);
-      color: var(--coral);
-      font-size: 16px;
+      color: var(--muted);
+      font-size: 12px;
       font-weight: 950;
       line-height: 1;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-50%) scale(0.82) rotate(-8deg);
-      transition: opacity var(--fast), transform var(--fast), background var(--fast), color var(--fast), box-shadow var(--fast);
+      white-space: nowrap;
+      transition: background var(--fast), color var(--fast), box-shadow var(--fast), border-color var(--fast);
     }
 
-    .item:hover .delete-btn,
-    .item:focus-within .delete-btn {
+    .delete-btn {
+      width: 32px;
+      color: var(--coral);
+      font-size: 16px;
+      border-color: rgba(184, 92, 74, 0.22);
+    }
+
+    .item:hover .item-actions,
+    .item:focus-within .item-actions {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(-50%) scale(1) rotate(0deg);
+      transform: translateY(-50%) scale(1);
+    }
+
+    .edit-btn:hover {
+      border-color: rgba(31, 111, 91, 0.28);
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(31, 111, 91, 0.18);
     }
 
     .delete-btn:hover {
       background: var(--coral);
       color: #fff;
-      box-shadow: 0 10px 18px rgba(255, 107, 87, 0.24);
+      box-shadow: 0 10px 18px rgba(184, 92, 74, 0.22);
     }
 
     .item.is-hidden {
@@ -599,6 +666,113 @@
       display: block;
     }
 
+    .edit-dialog[hidden] {
+      display: none;
+    }
+
+    .edit-dialog {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      align-items: end;
+      padding: 18px;
+    }
+
+    .edit-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(21, 21, 21, 0.34);
+      backdrop-filter: blur(6px);
+    }
+
+    .edit-sheet {
+      position: relative;
+      width: min(460px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 24px 60px rgba(21, 21, 21, 0.22);
+    }
+
+    .edit-eyebrow {
+      margin: 0 0 5px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .edit-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .edit-copy {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .edit-field {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .edit-field input {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .edit-field input:focus {
+      border-color: rgba(31, 111, 91, 0.52);
+      box-shadow: 0 0 0 4px rgba(31, 111, 91, 0.12);
+    }
+
+    .edit-actions {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 8px;
+    }
+
+    .edit-cancel,
+    .edit-save {
+      min-height: 44px;
+      border-radius: 8px;
+      font-weight: 900;
+      border: 1px solid var(--line);
+    }
+
+    .edit-cancel {
+      background: #fff;
+      color: var(--muted);
+    }
+
+    .edit-save {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
     @media (max-width: 900px) {
       .topbar {
         grid-template-columns: 1fr;
@@ -620,13 +794,13 @@
       }
 
       .topbar {
-        gap: 12px;
+        gap: 10px;
         align-items: stretch;
-        padding: 16px;
+        padding: 15px;
         border: 1px solid rgba(23, 23, 23, 0.06);
         border-radius: 8px;
-        background: linear-gradient(135deg, #ffffff 0%, #f7fbff 56%, #fff7ef 100%);
-        box-shadow: 0 10px 22px rgba(22, 28, 45, 0.08);
+        background: linear-gradient(135deg, #ffffff 0%, #faf7ef 58%, #f2f8f4 100%);
+        box-shadow: 0 10px 24px rgba(38, 34, 28, 0.09);
       }
 
       .kicker {
@@ -635,15 +809,14 @@
       }
 
       .kicker::before {
-        width: 8px;
-        height: 8px;
-        box-shadow: 12px 0 0 var(--yellow), 24px 0 0 var(--mint);
+        width: 16px;
+        height: 2px;
       }
 
       h1 {
         max-width: 100%;
-        font-size: 26px;
-        line-height: 1.16;
+        font-size: 23px;
+        line-height: 1.18;
       }
 
       .title-line {
@@ -655,9 +828,9 @@
       }
 
       .progress-panel {
-        padding: 12px;
-        border-color: rgba(47, 109, 246, 0.12);
-        background: rgba(255, 255, 255, 0.7);
+        padding: 11px;
+        border-color: rgba(31, 111, 91, 0.12);
+        background: rgba(255, 255, 255, 0.78);
         box-shadow: none;
       }
 
@@ -666,7 +839,7 @@
       }
 
       .progress-rate {
-        font-size: 24px;
+        font-size: 23px;
       }
 
       .progress-track {
@@ -715,7 +888,7 @@
 
       .filter-btn.is-active {
         background: var(--blue);
-        box-shadow: 0 8px 18px rgba(47, 109, 246, 0.18);
+        box-shadow: 0 8px 18px rgba(31, 111, 91, 0.18);
       }
 
       .action-btn {
@@ -779,6 +952,7 @@
       .category-head {
         gap: 8px;
         margin-bottom: 10px;
+        align-items: flex-start;
       }
 
       .category-title {
@@ -796,6 +970,16 @@
       .category-count {
         padding: 6px 8px;
         font-size: 12px;
+      }
+
+      .category-tools {
+        gap: 4px;
+      }
+
+      .category-action {
+        min-height: 28px;
+        padding: 0 7px;
+        font-size: 11px;
       }
 
       .items {
@@ -817,7 +1001,7 @@
         min-height: 54px;
         grid-template-columns: 30px minmax(0, 1fr);
         gap: 10px;
-        padding: 10px 44px 10px 10px;
+        padding: 10px 84px 10px 10px;
       }
 
       .check {
@@ -839,28 +1023,51 @@
         display: none;
       }
 
-      .delete-btn {
+      .item-actions {
         right: 8px;
-        width: 30px;
-        height: 30px;
-        border: 0;
-        background: transparent;
-        color: rgba(255, 107, 87, 0.72);
-        font-size: 18px;
+        gap: 3px;
         opacity: 1;
         pointer-events: auto;
         transform: translateY(-50%) scale(1);
       }
 
+      .edit-btn,
+      .delete-btn {
+        width: 38px;
+        height: 30px;
+        border: 0;
+        background: transparent;
+        font-size: 11px;
+      }
+
+      .delete-btn {
+        width: 28px;
+        color: rgba(255, 107, 87, 0.72);
+        font-size: 18px;
+      }
+
+      .edit-btn:hover,
       .delete-btn:hover {
         background: rgba(255, 107, 87, 0.1);
         color: var(--coral);
         box-shadow: none;
       }
+
+      .edit-dialog {
+        padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+      }
+
+      .edit-sheet {
+        padding: 16px;
+      }
+
+      .edit-title {
+        font-size: 20px;
+      }
     }
 
     @media (hover: none) {
-      .delete-btn {
+      .item-actions {
         opacity: 1;
         pointer-events: auto;
         transform: translateY(-50%) scale(1);
@@ -883,8 +1090,8 @@
   <main class="app">
     <section class="topbar" aria-label="체크리스트 요약">
       <div>
-        <p class="kicker">설치봉사 짐싸기</p>
-        <h1><span class="title-line">하계수양회 준비물</span><span class="title-line">체크리스트</span></h1>
+        <p class="kicker">준비물 체크</p>
+        <h1><span class="title-line">하계수양회</span><span class="title-line">준비물 체크리스트</span></h1>
         <p class="subtitle">챙긴 물건은 카드째로 눌러 체크. 마우스를 올리면 튀어나오고, 누르면 색이 바뀌면서 완료 표시가 남습니다.</p>
       </div>
 
@@ -921,10 +1128,38 @@
     <p class="empty" id="emptyState">지금 보기에는 표시할 항목이 없습니다.</p>
   </main>
 
+  <div class="edit-dialog" id="editDialog" hidden>
+    <div class="edit-backdrop" data-close-editor></div>
+    <form class="edit-sheet" id="editForm">
+      <div>
+        <p class="edit-eyebrow" id="editEyebrow">수정</p>
+        <h2 class="edit-title" id="editTitle">항목 수정</h2>
+        <p class="edit-copy" id="editCopy"></p>
+      </div>
+
+      <label class="edit-field" id="editNameField">
+        <span>이름</span>
+        <input id="editNameInput" type="text" autocomplete="off">
+      </label>
+
+      <label class="edit-field" id="editNoteField">
+        <span>설명</span>
+        <input id="editNoteInput" type="text" autocomplete="off" placeholder="선택">
+      </label>
+
+      <div class="edit-actions">
+        <button class="edit-cancel" id="editCancelBtn" type="button">취소</button>
+        <button class="edit-save" id="editSaveBtn" type="submit">저장</button>
+      </div>
+    </form>
+  </div>
+
   <script>
     const STORAGE_KEY = "summer-retreat-service-checklist-v1";
     const CUSTOM_KEY = "summer-retreat-service-custom-items-v1";
     const DELETED_KEY = "summer-retreat-service-deleted-items-v1";
+    const CATEGORY_KEY = "summer-retreat-service-category-edits-v1";
+    const ITEM_KEY = "summer-retreat-service-item-edits-v1";
 
     const categories = [
       {
@@ -940,7 +1175,7 @@
       },
       {
         id: "work",
-        title: "작업복",
+        title: "침례복",
         mark: "02",
         items: [
           { id: "work-training", name: "검정 츄리닝" },
@@ -999,7 +1234,7 @@
       },
       {
         id: "plus",
-        title: "추가 후보",
+        title: "기타",
         mark: "07",
         items: [
           { id: "plus-gloves", name: "작업 장갑" },
@@ -1016,6 +1251,8 @@
     let checkedItems = loadSet(STORAGE_KEY);
     let customItems = loadCustomItems();
     let deletedItems = loadSet(DELETED_KEY);
+    let categoryEdits = loadObject(CATEGORY_KEY);
+    let itemEdits = loadObject(ITEM_KEY);
     let currentFilter = "all";
 
     const board = document.getElementById("board");
@@ -1027,6 +1264,18 @@
     const addForm = document.getElementById("addForm");
     const categorySelect = document.getElementById("categorySelect");
     const newItemInput = document.getElementById("newItemInput");
+    const editDialog = document.getElementById("editDialog");
+    const editForm = document.getElementById("editForm");
+    const editEyebrow = document.getElementById("editEyebrow");
+    const editTitle = document.getElementById("editTitle");
+    const editCopy = document.getElementById("editCopy");
+    const editNameField = document.getElementById("editNameField");
+    const editNameInput = document.getElementById("editNameInput");
+    const editNoteField = document.getElementById("editNoteField");
+    const editNoteInput = document.getElementById("editNoteInput");
+    const editSaveBtn = document.getElementById("editSaveBtn");
+    const editCancelBtn = document.getElementById("editCancelBtn");
+    let editorState = null;
 
     function loadSet(key) {
       try {
@@ -1044,6 +1293,14 @@
       }
     }
 
+    function loadObject(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
     function saveChecked() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...checkedItems]));
     }
@@ -1056,18 +1313,49 @@
       localStorage.setItem(DELETED_KEY, JSON.stringify([...deletedItems]));
     }
 
+    function saveCategoryEdits() {
+      localStorage.setItem(CATEGORY_KEY, JSON.stringify(categoryEdits));
+    }
+
+    function saveItemEdits() {
+      localStorage.setItem(ITEM_KEY, JSON.stringify(itemEdits));
+    }
+
+    function activeCategories() {
+      return categories
+        .filter((category) => !categoryEdits[category.id]?.deleted)
+        .map((category) => ({
+          ...category,
+          title: categoryEdits[category.id]?.title || category.title
+        }));
+    }
+
+    function applyItemEdit(item) {
+      const edit = itemEdits[item.id] || {};
+      return {
+        ...item,
+        name: edit.name || item.name,
+        note: Object.prototype.hasOwnProperty.call(edit, "note") ? edit.note : item.note
+      };
+    }
+
     function allCategories() {
-      const clone = categories.map((category) => ({
+      const clone = activeCategories().map((category) => ({
         ...category,
-        items: category.items.filter((item) => !deletedItems.has(item.id))
+        items: category.items
+          .filter((item) => !deletedItems.has(item.id))
+          .map(applyItemEdit)
       }));
 
       customItems.forEach((item) => {
+        if (deletedItems.has(item.id)) return;
+        if (categoryEdits[item.categoryId]?.deleted) return;
+
         const target = clone.find((category) => category.id === item.categoryId) || clone[clone.length - 1];
-        if (!deletedItems.has(item.id)) target.items.push(item);
+        if (target) target.items.push(applyItemEdit(item));
       });
 
-      return clone.filter((category) => category.items.length > 0);
+      return clone;
     }
 
     function allItems() {
@@ -1078,7 +1366,7 @@
     }
 
     function renderCategoryOptions() {
-      categorySelect.innerHTML = categories.map((category) => (
+      categorySelect.innerHTML = activeCategories().map((category) => (
         `<option value="${category.id}">${category.title}</option>`
       )).join("");
     }
@@ -1093,6 +1381,7 @@
           const hidden = currentFilter === "done" && !isChecked || currentFilter === "todo" && isChecked;
           const note = item.note ? `<span class="item-note">${escapeHtml(item.note)}</span>` : "";
           const deleteLabel = `${item.name} 삭제`;
+          const editLabel = `${item.name} 수정`;
 
           return `
             <div
@@ -1109,16 +1398,26 @@
                 <span class="item-name">${escapeHtml(item.name)}${note}</span>
                 <span class="badge">${isChecked ? "완료" : "대기"}</span>
               </button>
-              <button
-                class="delete-btn"
-                type="button"
-                data-id="${item.id}"
-                aria-label="${escapeHtml(deleteLabel)}"
-                title="삭제"
-              >&times;</button>
+              <span class="item-actions">
+                <button
+                  class="edit-btn"
+                  type="button"
+                  data-id="${item.id}"
+                  aria-label="${escapeHtml(editLabel)}"
+                  title="수정"
+                >수정</button>
+                <button
+                  class="delete-btn"
+                  type="button"
+                  data-id="${item.id}"
+                  aria-label="${escapeHtml(deleteLabel)}"
+                  title="삭제"
+                >&times;</button>
+              </span>
             </div>
           `;
         }).join("");
+        const emptyItems = itemButtons ? "" : `<p class="category-empty">아직 항목이 없습니다.</p>`;
 
         return `
           <article class="category" data-category="${category.id}">
@@ -1127,9 +1426,13 @@
                 <span class="category-mark">${category.mark}</span>
                 <span>${escapeHtml(category.title)}</span>
               </h2>
-              <span class="category-count">${checkedCount}/${category.items.length}</span>
+              <div class="category-tools">
+                <span class="category-count">${checkedCount}/${category.items.length}</span>
+                <button class="category-action category-edit-btn" type="button" data-category-id="${category.id}">수정</button>
+                <button class="category-action category-delete-btn" type="button" data-category-id="${category.id}">삭제</button>
+              </div>
             </div>
-            <div class="items">${itemButtons}</div>
+            <div class="items">${itemButtons}${emptyItems}</div>
           </article>
         `;
       }).join("");
@@ -1185,8 +1488,176 @@
       }
 
       checkedItems.delete(id);
+      delete itemEdits[id];
       saveChecked();
+      saveItemEdits();
       render();
+    }
+
+    function findCategory(categoryId) {
+      return allCategories().find((category) => category.id === categoryId);
+    }
+
+    function findItem(itemId) {
+      return allCategories()
+        .flatMap((category) => category.items.map((item) => ({ ...item, categoryId: category.id })))
+        .find((item) => item.id === itemId);
+    }
+
+    function editCategory(button) {
+      const categoryId = button.dataset.categoryId;
+      const category = findCategory(categoryId);
+      if (!category) return;
+
+      openEditor({
+        type: "category",
+        id: categoryId,
+        eyebrow: "카테고리",
+        title: "카테고리 수정",
+        copy: "입고 갈 옷, 침례복, 잠옷 같은 큰 묶음 이름을 바꿉니다.",
+        name: category.title,
+        showName: true,
+        showNote: false,
+        submitLabel: "저장"
+      });
+    }
+
+    function deleteCategory(button) {
+      const categoryId = button.dataset.categoryId;
+      const category = findCategory(categoryId);
+      if (!category) return;
+
+      openEditor({
+        type: "delete-category",
+        id: categoryId,
+        eyebrow: "삭제 확인",
+        title: `${category.title} 삭제`,
+        copy: "이 카테고리와 안의 준비물이 화면에서 숨겨집니다.",
+        showName: false,
+        showNote: false,
+        submitLabel: "삭제"
+      });
+    }
+
+    function editItem(button) {
+      const id = button.dataset.id;
+      const item = findItem(id);
+      if (!item) return;
+
+      openEditor({
+        type: "item",
+        id,
+        eyebrow: "준비물",
+        title: "준비물 수정",
+        copy: "이름과 짧은 메모를 바꿀 수 있습니다.",
+        name: item.name,
+        note: item.note || "",
+        showName: true,
+        showNote: true,
+        submitLabel: "저장"
+      });
+    }
+
+    function openEditor(state) {
+      editorState = state;
+      editEyebrow.textContent = state.eyebrow;
+      editTitle.textContent = state.title;
+      editCopy.textContent = state.copy || "";
+      editSaveBtn.textContent = state.submitLabel || "저장";
+      editSaveBtn.style.background = state.type === "delete-category" ? "var(--coral)" : "var(--blue)";
+      editSaveBtn.style.borderColor = state.type === "delete-category" ? "var(--coral)" : "var(--blue)";
+
+      editNameField.hidden = state.showName === false;
+      editNameInput.required = state.showName !== false;
+      editNameInput.value = state.name || "";
+
+      editNoteField.hidden = state.showNote !== true;
+      editNoteInput.value = state.note || "";
+
+      editDialog.hidden = false;
+      window.setTimeout(() => {
+        if (state.showName !== false) {
+          editNameInput.focus();
+          editNameInput.select();
+        } else {
+          editSaveBtn.focus();
+        }
+      }, 0);
+    }
+
+    function closeEditor() {
+      editDialog.hidden = true;
+      editorState = null;
+      editForm.reset();
+    }
+
+    function saveEditor(event) {
+      event.preventDefault();
+      if (!editorState) return;
+
+      if (editorState.type === "category") {
+        const title = editNameInput.value.trim();
+        if (!title) return;
+
+        categoryEdits[editorState.id] = {
+          ...(categoryEdits[editorState.id] || {}),
+          title,
+          deleted: false
+        };
+        saveCategoryEdits();
+        renderCategoryOptions();
+        render();
+        closeEditor();
+        return;
+      }
+
+      if (editorState.type === "delete-category") {
+        const category = findCategory(editorState.id);
+        if (category) {
+          category.items.forEach((item) => {
+            checkedItems.delete(item.id);
+            deletedItems.delete(item.id);
+          });
+        }
+
+        categoryEdits[editorState.id] = {
+          ...(categoryEdits[editorState.id] || {}),
+          deleted: true
+        };
+
+        saveChecked();
+        saveDeletedItems();
+        saveCategoryEdits();
+        renderCategoryOptions();
+        render();
+        closeEditor();
+        return;
+      }
+
+      if (editorState.type !== "item") return;
+
+      const id = editorState.id;
+      const name = editNameInput.value.trim();
+      if (!name) return;
+
+      const note = editNoteInput.value.trim();
+      const customItem = customItems.find((entry) => entry.id === id);
+
+      if (customItem) {
+        customItem.name = name;
+        if (note) {
+          customItem.note = note;
+        } else {
+          delete customItem.note;
+        }
+        saveCustomItems();
+      } else {
+        itemEdits[id] = { name, note };
+        saveItemEdits();
+      }
+
+      render();
+      closeEditor();
     }
 
     function showBurst(button) {
@@ -1244,6 +1715,24 @@
     }
 
     board.addEventListener("click", (event) => {
+      const categoryEditButton = event.target.closest(".category-edit-btn");
+      if (categoryEditButton) {
+        editCategory(categoryEditButton);
+        return;
+      }
+
+      const categoryDeleteButton = event.target.closest(".category-delete-btn");
+      if (categoryDeleteButton) {
+        deleteCategory(categoryDeleteButton);
+        return;
+      }
+
+      const editButton = event.target.closest(".edit-btn");
+      if (editButton) {
+        editItem(editButton);
+        return;
+      }
+
       const deleteButton = event.target.closest(".delete-btn");
       if (deleteButton) {
         deleteItem(deleteButton);
@@ -1260,6 +1749,15 @@
 
     resetBtn.addEventListener("click", resetChecks);
     addForm.addEventListener("submit", addCustomItem);
+    editForm.addEventListener("submit", saveEditor);
+    editCancelBtn.addEventListener("click", closeEditor);
+    editDialog.addEventListener("click", (event) => {
+      if (event.target.matches("[data-close-editor]")) closeEditor();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !editDialog.hidden) closeEditor();
+    });
 
     renderCategoryOptions();
     render();
